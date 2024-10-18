@@ -1,4 +1,4 @@
-<?phpsaveClass
+<?php
 include '../Includes/dbcon.php';
 
 class ClassController {        // OOP
