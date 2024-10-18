@@ -1,97 +1,27 @@
-
-<?php 
-error_reporting(0);
-include '../Includes/dbcon.php';
+<?php
 include '../Includes/session.php';
+include 'ClassController.php';
 
-//------------------------SAVE--------------------------------------------------
+$classController = new ClassController($conn); // OOP
+$statusMsg = "";
 
-if(isset($_POST['save'])){
-    
-    $className=$_POST['className'];
-   
-    $query=mysqli_query($conn,"select * from tblclass where className ='$className'");
-    $ret=mysqli_fetch_array($query);
-
-    if($ret > 0){ 
-
-        $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>This Class Already Exists!</div>";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['save'])) {
+        $statusMsg = $classController->saveClass($_POST['className']);
+    } elseif (isset($_POST['update']) && isset($_GET['Id'])) {
+        $statusMsg = $classController->updateClass($_GET['Id'], $_POST['className']);
     }
-    else{
-
-        $query=mysqli_query($conn,"insert into tblclass(className) value('$className')");
-
-    if ($query) {
-        
-        $statusMsg = "<div class='alert alert-success'  style='margin-right:700px;'>Created Successfully!</div>";
-    }
-    else
-    {
-         $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
-    }
-  }
 }
 
-//---------------------------------------EDIT-------------------------------------------------------------
+if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['Id'])) {
+    $statusMsg = $classController->deleteClass($_GET['Id']);
+}
 
-
-
-
-
-
-//--------------------EDIT------------------------------------------------------------
-
- if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "edit")
-	{
-        $Id= $_GET['Id'];
-
-        $query=mysqli_query($conn,"select * from tblclass where Id ='$Id'");
-        $row=mysqli_fetch_array($query);
-
-        //------------UPDATE-----------------------------
-
-        if(isset($_POST['update'])){
-    
-            $className=$_POST['className'];
-        
-            $query=mysqli_query($conn,"update tblclass set className='$className' where Id='$Id'");
-
-            if ($query) {
-                
-                echo "<script type = \"text/javascript\">
-                window.location = (\"createClass.php\")
-                </script>"; 
-            }
-            else
-            {
-                $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
-            }
-        }
-    }
-
-
-//--------------------------------DELETE------------------------------------------------------------------
-
-  if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "delete")
-	{
-        $Id= $_GET['Id'];
-
-        $query = mysqli_query($conn,"DELETE FROM tblclass WHERE Id='$Id'");
-
-        if ($query == TRUE) {
-
-                echo "<script type = \"text/javascript\">
-                window.location = (\"createClass.php\")
-                </script>";  
-        }
-        else{
-
-            $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>"; 
-         }
-      
-  }
-
-
+$className = "";
+if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['Id'])) {
+    $classData = $classController->getClassById($_GET['Id']);
+    $className = $classData['className'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -124,10 +54,10 @@ if(isset($_POST['save'])){
         <!-- Container Fluid-->
         <div class="container-fluid" id="container-wrapper">
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Create Course</h1>
+            <h1 class="h3 mb-0 text-gray-800">Create Class</h1>
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="./">Home</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Create Course</li>
+              <li class="breadcrumb-item active" aria-current="page">Create Class</li>
             </ol>
           </div>
 
@@ -136,15 +66,15 @@ if(isset($_POST['save'])){
               <!-- Form Basic -->
               <div class="card mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Create Course</h6>
+                  <h6 class="m-0 font-weight-bold text-primary">Create Class</h6>
                     <?php echo $statusMsg; ?>
                 </div>
                 <div class="card-body">
                   <form method="post">
                     <div class="form-group row mb-3">
                         <div class="col-xl-6">
-                            <label class="form-control-label">Course Name<span class="text-danger ml-2">*</span></label>
-                      <input type="text" class="form-control" name="className" value="<?php echo $row['className'];?>" id="exampleInputFirstName" placeholder="Course Name">
+                            <label class="form-control-label">Class Name<span class="text-danger ml-2">*</span></label>
+                            <input type="text" class="form-control" name="className" value="<?php echo htmlspecialchars($className); ?>" id="exampleInputFirstName" placeholder="Class Name">
                         </div>
                     </div>
                       <?php
@@ -169,14 +99,14 @@ if(isset($_POST['save'])){
               <div class="col-lg-12">
               <div class="card mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">All Course</h6>
+                  <h6 class="m-0 font-weight-bold text-primary">All Classes</h6>
                 </div>
                 <div class="table-responsive p-3">
                   <table class="table align-items-center table-flush table-hover" id="dataTableHover">
                     <thead class="thead-light">
                       <tr>
                         <th>#</th>
-                        <th>Course Name</th>
+                        <th>Class Name</th>
                         <th>Edit</th>
                         <th>Delete</th>
                       </tr>
