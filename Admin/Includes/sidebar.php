@@ -1,5 +1,6 @@
 <ul class="navbar-nav sidebar sidebar-light accordion " id="accordionSidebar">
-      <a class="sidebar-brand d-flex align-items-center bg-gradient-primary  justify-content-center" href="index.php">
+     <a class="sidebar-brand d-flex align-items-center bg-gradient-primary  justify-content-center" href="index.php" style="background-color: #6777ef; background-image: background-image: -webkit-gradient(linear,left top,left bottom,color-stop(10%,#6777ef),to(#303f9f));
+      background-image: linear-gradient(180deg,#67bcfb 10%,#6777ef 100%);">
         <div class="sidebar-brand-icon" >
           <img src="img/logo/1234.png">
         </div>
