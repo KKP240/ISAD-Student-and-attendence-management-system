@@ -3,113 +3,38 @@
 error_reporting(0);
 include '../Includes/dbcon.php';
 include '../Includes/session.php';
-
+include 'Student.php';
 //------------------------SAVE--------------------------------------------------
 
-if(isset($_POST['save'])){
-    
-    $firstName=$_POST['firstName'];
-  $lastName=$_POST['lastName'];
-  $otherName=$_POST['otherName'];
+$student = new Student($conn);   // Initialize the Student class with the database connection
+$statusMsg = "";
 
-  $admissionNumber=$_POST['admissionNumber'];
-  $classId=$_POST['classId'];
-  $classArmId=$_POST['classArmId'];
-  $dateCreated = date("Y-m-d");
-   
-    $query=mysqli_query($conn,"select * from tblstudents where admissionNumber ='$admissionNumber'");
-    $ret=mysqli_fetch_array($query);
-
-    if($ret > 0){ 
-
-        $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>This Email Address Already Exists!</div>";
-    }
-    else{
-
-    $query=mysqli_query($conn,"insert into tblstudents(firstName,lastName,otherName,admissionNumber,password,classId,classArmId,dateCreated) 
-    value('$firstName','$lastName','$otherName','$admissionNumber','12345','$classId','$classArmId','$dateCreated')");
-
-    if ($query) {
-        
-        $statusMsg = "<div class='alert alert-success'  style='margin-right:700px;'>Created Successfully!</div>";
-            
-    }
-    else
-    {
-         $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
-    }
-  }
+// Save student
+if (isset($_POST['save'])) {
+    $statusMsg = $student->save($_POST['firstName'], $_POST['lastName'], $_POST['otherName'], $_POST['admissionNumber'], $_POST['classId'], $_POST['classArmId']);
 }
 
-//---------------------------------------EDIT-------------------------------------------------------------
-
-
-
-
-
-
-//--------------------EDIT------------------------------------------------------------
-
- if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "edit")
-	{
-        $Id= $_GET['Id'];
-
-        $query=mysqli_query($conn,"select * from tblstudents where Id ='$Id'");
-        $row=mysqli_fetch_array($query);
-
-        //------------UPDATE-----------------------------
-
-        if(isset($_POST['update'])){
-    
-             $firstName=$_POST['firstName'];
-  $lastName=$_POST['lastName'];
-  $otherName=$_POST['otherName'];
-
-  $admissionNumber=$_POST['admissionNumber'];
-  $classId=$_POST['classId'];
-  $classArmId=$_POST['classArmId'];
-  $dateCreated = date("Y-m-d");
-
- $query=mysqli_query($conn,"update tblstudents set firstName='$firstName', lastName='$lastName',
-    otherName='$otherName', admissionNumber='$admissionNumber',password='12345', classId='$classId',classArmId='$classArmId'
-    where Id='$Id'");
-            if ($query) {
-                
-                echo "<script type = \"text/javascript\">
-                window.location = (\"createStudents.php\")
-                </script>"; 
-            }
-            else
-            {
-                $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
-            }
-        }
+// Update student
+if (isset($_POST['update'])) {
+    if ($student->update($_GET['Id'], $_POST['firstName'], $_POST['lastName'], $_POST['otherName'], $_POST['admissionNumber'], $_POST['classId'], $_POST['classArmId'])) {
+        echo "<script>window.location = 'createStudents.php';</script>";
+    } else {
+        $statusMsg = "<div class='alert alert-danger'>An error Occurred!</div>";
     }
+}
 
+// Delete student
+if (isset($_GET['action']) && $_GET['action'] == 'delete') {
+    $student->delete($_GET['Id']);
+    echo "<script>window.location = 'createStudents.php';</script>";
+}
 
-//--------------------------------DELETE------------------------------------------------------------------
+// Edit student
+if (isset($_GET['action']) && $_GET['action'] == 'edit') {
+    $row = $student->getStudentById($_GET['Id']);
+}
 
-  if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "delete")
-	{
-        $Id= $_GET['Id'];
-        $classArmId= $_GET['classArmId'];
-
-        $query = mysqli_query($conn,"DELETE FROM tblstudents WHERE Id='$Id'");
-
-        if ($query == TRUE) {
-
-            echo "<script type = \"text/javascript\">
-            window.location = (\"createStudents.php\")
-            </script>";
-        }
-        else{
-
-            $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>"; 
-         }
-      
-  }
-
-
+$students = $student->getAllStudents();
 ?>
 
 <!DOCTYPE html>
