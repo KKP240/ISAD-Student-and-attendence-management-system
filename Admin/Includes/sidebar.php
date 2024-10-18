@@ -112,7 +112,6 @@
             <h6 class="collapse-header">Attendence</h6>
             <a class="collapse-item" href="MakeAttendence.php">Make Attendences</a>
             <a class="collapse-item" href="takeAttendance.php">Take Attendance</a>
-            <a class="collapse-item" href="viewStudentAttendance.php">View Attendance</a>
             <a class="collapse-item" href="viewAttendance.php">View Class Attendance</a>
             <a class="collapse-item" href="viewStudentAttendance.php">View Student Attendance</a>
             <!-- <a class="collapse-item" href="#">Member List</a> -->
