@@ -4,112 +4,20 @@ error_reporting(0);
 include '../Includes/dbcon.php';
 include '../Includes/session.php';
 
-//------------------------SAVE--------------------------------------------------
+  if (isset($_POST['search'])) {
+    $classId = $_POST['classId'];
+    $classArmId = $_POST['classArmId'];
 
-if(isset($_POST['save'])){
-    
-    $firstName=$_POST['firstName'];
-  $lastName=$_POST['lastName'];
-  $otherName=$_POST['otherName'];
-
-  $admissionNumber=$_POST['admissionNumber'];
-  $classId=$_POST['classId'];
-  $classArmId=$_POST['classArmId'];
-  $dateCreated = date("Y-m-d");
-   
-    $query=mysqli_query($conn,"select * from tblstudents where admissionNumber ='$admissionNumber'");
-    $ret=mysqli_fetch_array($query);
-
-    if($ret > 0){ 
-
-        $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>This Email Address Already Exists!</div>";
-    }
-    else{
-
-    $query=mysqli_query($conn,"insert into tblstudents(firstName,lastName,otherName,admissionNumber,password,classId,classArmId,dateCreated) 
-    value('$firstName','$lastName','$otherName','$admissionNumber','12345','$classId','$classArmId','$dateCreated')");
-
-    if ($query) {
-        
-        $statusMsg = "<div class='alert alert-success'  style='margin-right:700px;'>Created Successfully!</div>";
-            
-    }
-    else
-    {
-         $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
-    }
+    // ค้นหาเฉพาะนักเรียนที่อยู่ใน class และ classArm ที่เลือก
+    $query = "SELECT tblclass.className,tblclassarms.classArmName 
+              FROM tblclassteacher
+              INNER JOIN tblclass ON tblclass.Id = tblclassteacher.classId
+              INNER JOIN tblclassarms ON tblclassarms.Id = tblclassteacher.classArmId
+              Where tblclassteacher.Id = '$_SESSION[userId]'";
+        $rs = $conn->query($query);
+        $num = $rs->num_rows;
+        $rrw = $rs->fetch_assoc();
   }
-}
-
-//---------------------------------------EDIT-------------------------------------------------------------
-
-
-
-
-
-
-//--------------------EDIT------------------------------------------------------------
-
- if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "edit")
-	{
-        $Id= $_GET['Id'];
-
-        $query=mysqli_query($conn,"select * from tblstudents where Id ='$Id'");
-        $row=mysqli_fetch_array($query);
-
-        //------------UPDATE-----------------------------
-
-        if(isset($_POST['update'])){
-    
-             $firstName=$_POST['firstName'];
-  $lastName=$_POST['lastName'];
-  $otherName=$_POST['otherName'];
-
-  $admissionNumber=$_POST['admissionNumber'];
-  $classId=$_POST['classId'];
-  $classArmId=$_POST['classArmId'];
-  $dateCreated = date("Y-m-d");
-
- $query=mysqli_query($conn,"update tblstudents set firstName='$firstName', lastName='$lastName',
-    otherName='$otherName', admissionNumber='$admissionNumber',password='12345', classId='$classId',classArmId='$classArmId'
-    where Id='$Id'");
-            if ($query) {
-                
-                echo "<script type = \"text/javascript\">
-                window.location = (\"createStudents.php\")
-                </script>"; 
-            }
-            else
-            {
-                $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
-            }
-        }
-    }
-
-
-//--------------------------------DELETE------------------------------------------------------------------
-
-  if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "delete")
-	{
-        $Id= $_GET['Id'];
-        $classArmId= $_GET['classArmId'];
-
-        $query = mysqli_query($conn,"DELETE FROM tblstudents WHERE Id='$Id'");
-
-        if ($query == TRUE) {
-
-            echo "<script type = \"text/javascript\">
-            window.location = (\"createStudents.php\")
-            </script>";
-        }
-        else{
-
-            $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>"; 
-         }
-      
-  }
-
-
 ?>
 
 <!DOCTYPE html>
@@ -218,7 +126,7 @@ if(isset($_POST['save'])){
                     <?php
                     } else {           
                     ?>
-                    <button type="submit" name="save" class="btn btn-primary">Save</button>
+                    <button type="submit" name="search" class="btn btn-primary">Search</button>
                     <?php
                     }         
                     ?>
@@ -252,45 +160,63 @@ if(isset($_POST['save'])){
                 
                     <tbody>
 
-                  <?php
-                      $query = "SELECT tblstudents.Id,tblclass.className,tblclassarms.classArmName,tblclassarms.Id AS classArmId,tblstudents.firstName,
-                      tblstudents.lastName,tblstudents.otherName,tblstudents.admissionNumber,tblstudents.dateCreated
-                      FROM tblstudents
-                      INNER JOIN tblclass ON tblclass.Id = tblstudents.classId
-                      INNER JOIN tblclassarms ON tblclassarms.Id = tblstudents.classArmId";
-                      $rs = $conn->query($query);
-                      $num = $rs->num_rows;
-                      $sn=0;
-                      $status="";
-                      if($num > 0)
-                      { 
-                        while ($rows = $rs->fetch_assoc())
-                          {
-                             $sn = $sn + 1;
-                            echo"
-                              <tr>
-                                <td>".$sn."</td>
-                                <td>".$rows['firstName']."</td>
-                                <td>".$rows['lastName']."</td>
-                                <td>".$rows['otherName']."</td>
-                                <td>".$rows['admissionNumber']."</td>
-                                <td>".$rows['className']."</td>
-                                <td>".$rows['classArmName']."</td>
-                                 <td>".$rows['dateCreated']."</td>
-                                <td><a href='?action=edit&Id=".$rows['Id']."'><i class='fas fa-fw fa-edit'></i></a></td>
-                                <td><a href='?action=delete&Id=".$rows['Id']."'><i class='fas fa-fw fa-trash'></i></a></td>
-                              </tr>";
+                    <?php
+                        if (isset($_POST['search'])) {
+                          $classId = $_POST['classId'];
+                          $classArmId = $_POST['classArmId'];
+
+                          if (!empty($classId) && !empty($classArmId)) {
+                            // ใช้ prepared statement เพื่อป้องกัน SQL Injection
+                            $query = "SELECT tblstudents.Id, tblclass.className, tblclassarms.classArmName, tblstudents.firstName,
+                                      tblstudents.lastName, tblstudents.otherName, tblstudents.admissionNumber, tblstudents.dateCreated
+                                      FROM tblstudents
+                                      INNER JOIN tblclass ON tblclass.Id = tblstudents.classId
+                                      INNER JOIN tblclassarms ON tblclassarms.Id = tblstudents.classArmId
+                                      WHERE tblstudents.classId = ? AND tblstudents.classArmId = ?";
+
+                            // เตรียม query
+                            if ($stmt = $conn->prepare($query)) {
+                              // bind parameter เพื่อแทนค่าลงใน query
+                              $stmt->bind_param("ii", $classId, $classArmId);
+
+                              // execute query
+                              $stmt->execute();
+
+                              // ดึงผลลัพธ์
+                              $rs = $stmt->get_result();
+                              $num = $rs->num_rows;
+                              $sn = 0;
+
+                              if ($num > 0) {
+                                // แสดงผลลัพธ์
+                                while ($rows = $rs->fetch_assoc()) {
+                                  $sn++;
+                                  echo "
+                                    <tr>
+                                      <td>{$sn}</td>
+                                      <td>{$rows['firstName']}</td>
+                                      <td>{$rows['lastName']}</td>
+                                      <td>{$rows['otherName']}</td>
+                                      <td>{$rows['admissionNumber']}</td>
+                                      <td>{$rows['className']}</td>
+                                      <td>{$rows['classArmName']}</td>
+                                      <td>{$rows['dateCreated']}</td>
+                                      <td><a href='?action=edit&Id={$rows['Id']}'><i class='fas fa-fw fa-edit'></i></a></td>
+                                      <td><a href='?action=delete&Id={$rows['Id']}'><i class='fas fa-fw fa-trash'></i></a></td>
+                                    </tr>";
+                                }
+                              } else {
+                                echo "<div class='alert alert-danger'>No Record Found!</div>";
+                              }
+                            } else {
+                              echo "<div class='alert alert-danger'>Failed to prepare the query.</div>";
+                            }
+                          } else {
+                            echo "<div class='alert alert-danger'>Please select both Course and Class.</div>";
                           }
-                      }
-                      else
-                      {
-                           echo   
-                           "<div class='alert alert-danger' role='alert'>
-                            No Record Found!
-                            </div>";
-                      }
-                      
-                      ?>
+                        }
+                        ?>
+
                     </tbody>
                   </table>
                 </div>
