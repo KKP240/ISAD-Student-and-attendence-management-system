@@ -1,23 +1,112 @@
-
 <?php 
 error_reporting(0);
 include '../Includes/dbcon.php';
 include '../Includes/session.php';
 
-  if (isset($_POST['search'])) {
-    $classId = $_POST['classId'];
-    $classArmId = $_POST['classArmId'];
+class ViewStudent {
+    private $conn;
+    private $userId;
+    private $classId;
+    private $classArmId;
 
-    // ค้นหาเฉพาะนักเรียนที่อยู่ใน class และ classArm ที่เลือก
-    $query = "SELECT tblclass.className,tblclassarms.classArmName 
-              FROM tblclassteacher
-              INNER JOIN tblclass ON tblclass.Id = tblclassteacher.classId
-              INNER JOIN tblclassarms ON tblclassarms.Id = tblclassteacher.classArmId
-              Where tblclassteacher.Id = '$_SESSION[userId]'";
-        $rs = $conn->query($query);
-        $num = $rs->num_rows;
-        $rrw = $rs->fetch_assoc();
-  }
+    /**
+     * Constructor to initialize database connection and user ID.
+     *
+     * @param mysqli $dbConnection The MySQLi database connection.
+     * @param int $userId The ID of the currently logged-in user.
+     */
+    public function __construct($dbConnection, $userId) {
+        $this->conn = $dbConnection;
+        $this->userId = $userId;
+    }
+
+    /**
+     * Set the Class ID.
+     *
+     * @param int $classId
+     */
+    public function setClassId($classId) {
+        $this->classId = intval($classId);
+    }
+
+    /**
+     * Get the Class ID.
+     *
+     * @return int
+     */
+    public function getClassId() {
+        return $this->classId;
+    }
+
+    /**
+     * Set the Class Arm ID.
+     *
+     * @param int $classArmId
+     */
+    public function setClassArmId($classArmId) {
+        $this->classArmId = intval($classArmId);
+    }
+
+    /**
+     * Get the Class Arm ID.
+     *
+     * @return int
+     */
+    public function getClassArmId() {
+        return $this->classArmId;
+    }
+
+    /**
+     * Search for students based on class and class arm IDs.
+     *
+     * @return array|false Returns an associative array with results or false on failure.
+     */
+    public function searchStudents() {
+        // Prepare the SQL query with placeholders
+        $query = "
+            SELECT tblclass.className, tblclassarms.classArmName 
+            FROM tblclassteacher
+            INNER JOIN tblclass ON tblclass.Id = tblclassteacher.classId
+            INNER JOIN tblclassarms ON tblclassarms.Id = tblclassteacher.classArmId
+            WHERE tblclassteacher.Id = ? 
+              AND tblclassteacher.classId = ? 
+              AND tblclassteacher.classArmId = ?
+        ";
+
+        // Initialize the prepared statement
+        if ($stmt = $this->conn->prepare($query)) {
+            // Bind parameters to the placeholders
+            // Assuming userId, classId, and classArmId are integers
+            $stmt->bind_param("iii", $this->userId, $this->classId, $this->classArmId);
+
+            // Execute the query
+            if ($stmt->execute()) {
+                // Get the result set from the executed statement
+                $result = $stmt->get_result();
+
+                // Fetch all rows as an associative array
+                $data = $result->fetch_all(MYSQLI_ASSOC);
+
+                // Get the number of rows
+                $num = $result->num_rows;
+
+                // Close the statement
+                $stmt->close();
+
+                return ['num' => $num, 'data' => $data];
+            } else {
+                // Handle execution error
+                error_log("Execution failed: (" . $stmt->errno . ") " . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+        } else {
+            // Handle preparation error
+            error_log("Preparation failed: (" . $this->conn->errno . ") " . $this->conn->error);
+            return false;
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
