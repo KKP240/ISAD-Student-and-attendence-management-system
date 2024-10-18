@@ -4,15 +4,111 @@ error_reporting(0);
 include '../Includes/dbcon.php';
 include '../Includes/session.php';
 
-$query = "SELECT tblclass.className,tblclassarms.classArmName 
-    FROM tblclassteacher
-    INNER JOIN tblclass ON tblclass.Id = tblclassteacher.classId
-    INNER JOIN tblclassarms ON tblclassarms.Id = tblclassteacher.classArmId
-    Where tblclassteacher.Id = '$_SESSION[userId]'";
+//------------------------SAVE--------------------------------------------------
 
-    $rs = $conn->query($query);
-    $num = $rs->num_rows;
-    $rrw = $rs->fetch_assoc();
+if(isset($_POST['save'])){
+    
+    $firstName=$_POST['firstName'];
+  $lastName=$_POST['lastName'];
+  $otherName=$_POST['otherName'];
+
+  $admissionNumber=$_POST['admissionNumber'];
+  $classId=$_POST['classId'];
+  $classArmId=$_POST['classArmId'];
+  $dateCreated = date("Y-m-d");
+   
+    $query=mysqli_query($conn,"select * from tblstudents where admissionNumber ='$admissionNumber'");
+    $ret=mysqli_fetch_array($query);
+
+    if($ret > 0){ 
+
+        $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>This Email Address Already Exists!</div>";
+    }
+    else{
+
+    $query=mysqli_query($conn,"insert into tblstudents(firstName,lastName,otherName,admissionNumber,password,classId,classArmId,dateCreated) 
+    value('$firstName','$lastName','$otherName','$admissionNumber','12345','$classId','$classArmId','$dateCreated')");
+
+    if ($query) {
+        
+        $statusMsg = "<div class='alert alert-success'  style='margin-right:700px;'>Created Successfully!</div>";
+            
+    }
+    else
+    {
+         $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
+    }
+  }
+}
+
+//---------------------------------------EDIT-------------------------------------------------------------
+
+
+
+
+
+
+//--------------------EDIT------------------------------------------------------------
+
+ if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "edit")
+	{
+        $Id= $_GET['Id'];
+
+        $query=mysqli_query($conn,"select * from tblstudents where Id ='$Id'");
+        $row=mysqli_fetch_array($query);
+
+        //------------UPDATE-----------------------------
+
+        if(isset($_POST['update'])){
+    
+             $firstName=$_POST['firstName'];
+  $lastName=$_POST['lastName'];
+  $otherName=$_POST['otherName'];
+
+  $admissionNumber=$_POST['admissionNumber'];
+  $classId=$_POST['classId'];
+  $classArmId=$_POST['classArmId'];
+  $dateCreated = date("Y-m-d");
+
+ $query=mysqli_query($conn,"update tblstudents set firstName='$firstName', lastName='$lastName',
+    otherName='$otherName', admissionNumber='$admissionNumber',password='12345', classId='$classId',classArmId='$classArmId'
+    where Id='$Id'");
+            if ($query) {
+                
+                echo "<script type = \"text/javascript\">
+                window.location = (\"createStudents.php\")
+                </script>"; 
+            }
+            else
+            {
+                $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
+            }
+        }
+    }
+
+
+//--------------------------------DELETE------------------------------------------------------------------
+
+  if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "delete")
+	{
+        $Id= $_GET['Id'];
+        $classArmId= $_GET['classArmId'];
+
+        $query = mysqli_query($conn,"DELETE FROM tblstudents WHERE Id='$Id'");
+
+        if ($query == TRUE) {
+
+            echo "<script type = \"text/javascript\">
+            window.location = (\"createStudents.php\")
+            </script>";
+        }
+        else{
+
+            $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>"; 
+         }
+      
+  }
+
 
 ?>
 
@@ -26,7 +122,7 @@ $query = "SELECT tblclass.className,tblclassarms.classArmName
   <meta name="description" content="">
   <meta name="author" content="">
   <link href="img/logo/attnlg.jpg" rel="icon">
-  <title>Dashboard</title>
+<?php include 'includes/title.php';?>
   <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
   <link href="css/ruang-admin.min.css" rel="stylesheet">
@@ -72,24 +168,70 @@ $query = "SELECT tblclass.className,tblclassarms.classArmName
         <!-- Container Fluid-->
         <div class="container-fluid" id="container-wrapper">
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">All Student in (<?php echo $rrw['className'].' - '.$rrw['classArmName'];?>) Class</h1>
+            <h1 class="h3 mb-0 text-gray-800">View Student</h1>
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="./">Home</a></li>
-              <li class="breadcrumb-item active" aria-current="page">All Student in Class</li>
+              <li class="breadcrumb-item active" aria-current="page">View Student</li>
             </ol>
           </div>
 
           <div class="row">
             <div class="col-lg-12">
               <!-- Form Basic -->
-
+              <div class="card mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">View Student</h6>
+                    <?php echo $statusMsg; ?>
+                </div>
+                <div class="card-body">
+                  <form method="post">
+                    <div class="form-group row mb-3">
+                        <div class="col-xl-6">
+                        <label class="form-control-label">Select Course<span class="text-danger ml-2">*</span></label>
+                         <?php
+                        $qry= "SELECT * FROM tblclass ORDER BY className ASC";
+                        $result = $conn->query($qry);
+                        $num = $result->num_rows;		
+                        if ($num > 0){
+                          echo ' <select required name="classId" onchange="classArmDropdown(this.value)" class="form-control mb-3">';
+                          echo'<option value="">--Select Course--</option>';
+                          while ($rows = $result->fetch_assoc()){
+                          echo'<option value="'.$rows['Id'].'" >'.$rows['className'].'</option>';
+                              }
+                                  echo '</select>';
+                              }
+                            ?>  
+                        </div>
+                        <div class="col-xl-6">
+                        <label class="form-control-label">Select Class<span class="text-danger ml-2">*</span></label>
+                            <?php
+                                echo"<div id='txtHint'></div>";
+                            ?>
+                        </div>
+                    </div>
+                      <?php
+                    if (isset($Id))
+                    {
+                    ?>
+                    <button type="submit" name="update" class="btn btn-warning">Update</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <?php
+                    } else {           
+                    ?>
+                    <button type="submit" name="save" class="btn btn-primary">Save</button>
+                    <?php
+                    }         
+                    ?>
+                  </form>
+                </div>
+              </div>
 
               <!-- Input Group -->
                  <div class="row">
               <div class="col-lg-12">
               <div class="card mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">All Student In Class</h6>
+                  <h6 class="m-0 font-weight-bold text-primary">All Student</h6>
                 </div>
                 <div class="table-responsive p-3">
                   <table class="table align-items-center table-flush table-hover" id="dataTableHover">
@@ -102,9 +244,12 @@ $query = "SELECT tblclass.className,tblclassarms.classArmName
                         <th>Admission No</th>
                         <th>Class</th>
                         <th>Class Arm</th>
+                        <th>Date Created</th>
+                         <th>Edit</th>
+                        <th>Delete</th>
                       </tr>
                     </thead>
-                    
+                
                     <tbody>
 
                   <?php
@@ -112,8 +257,7 @@ $query = "SELECT tblclass.className,tblclassarms.classArmName
                       tblstudents.lastName,tblstudents.otherName,tblstudents.admissionNumber,tblstudents.dateCreated
                       FROM tblstudents
                       INNER JOIN tblclass ON tblclass.Id = tblstudents.classId
-                      INNER JOIN tblclassarms ON tblclassarms.Id = tblstudents.classArmId
-                      where tblstudents.classId = '$_SESSION[classId]' and tblstudents.classArmId = '$_SESSION[classArmId]'";
+                      INNER JOIN tblclassarms ON tblclassarms.Id = tblstudents.classArmId";
                       $rs = $conn->query($query);
                       $num = $rs->num_rows;
                       $sn=0;
@@ -132,6 +276,9 @@ $query = "SELECT tblclass.className,tblclassarms.classArmName
                                 <td>".$rows['admissionNumber']."</td>
                                 <td>".$rows['className']."</td>
                                 <td>".$rows['classArmName']."</td>
+                                 <td>".$rows['dateCreated']."</td>
+                                <td><a href='?action=edit&Id=".$rows['Id']."'><i class='fas fa-fw fa-edit'></i></a></td>
+                                <td><a href='?action=delete&Id=".$rows['Id']."'><i class='fas fa-fw fa-trash'></i></a></td>
                               </tr>";
                           }
                       }
