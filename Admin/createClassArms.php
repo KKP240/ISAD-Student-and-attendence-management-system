@@ -1,98 +1,77 @@
-
-<?php 
+<?php
 error_reporting(0);
 include '../Includes/dbcon.php';
 include '../Includes/session.php';
 
-//------------------------SAVE--------------------------------------------------
+class ClassArmManager {
+    private $conn;
 
-if(isset($_POST['save'])){
-    
-    $classId=$_POST['classId'];
-    $classArmName=$_POST['classArmName'];
-   
-    $query=mysqli_query($conn,"select * from tblclassarms where classArmName ='$classArmName' and classId = '$classId'");
-    $ret=mysqli_fetch_array($query);
-
-    if($ret > 0){ 
-
-        $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>This Class Arm Already Exists!</div>";
+    public function __construct($dbConnection) {
+        $this->conn = $dbConnection;
     }
-    else{
 
-        $query=mysqli_query($conn,"insert into tblclassarms(classId,classArmName,isAssigned) value('$classId','$classArmName','0')");
+    public function saveClassArm($classId, $classArmName) {
+        $query = mysqli_query($this->conn, "SELECT * FROM tblclassarms WHERE classArmName = '$classArmName' AND classId = '$classId'");
+        $ret = mysqli_fetch_array($query);
 
-    if ($query) {
-        
-        $statusMsg = "<div class='alert alert-success'  style='margin-right:700px;'>Created Successfully!</div>";
+        if ($ret > 0) {
+            return "<div class='alert alert-danger'>This Class Arm Already Exists!</div>";
+        } else {
+            $query = mysqli_query($this->conn, "INSERT INTO tblclassarms (classId, classArmName, isAssigned) VALUES ('$classId', '$classArmName', '0')");
+            return $query ? "<div class='alert alert-success'>Created Successfully!</div>" : "<div class='alert alert-danger'>An error Occurred!</div>";
+        }
     }
-    else
-    {
-         $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
+
+    public function updateClassArm($id, $classId, $classArmName) {
+        $query = mysqli_query($this->conn, "UPDATE tblclassarms SET classId = '$classId', classArmName = '$classArmName' WHERE Id = '$id'");
+        return $query ? true : false;
     }
-  }
+
+    public function deleteClassArm($id) {
+        $query = mysqli_query($this->conn, "DELETE FROM tblclassarms WHERE Id = '$id'");
+        return $query === TRUE;
+    }
+
+    public function getClassArmById($id) {
+        $query = mysqli_query($this->conn, "SELECT * FROM tblclassarms WHERE Id = '$id'");
+        return mysqli_fetch_array($query);
+    }
+
+    public function getAllClassArms() {
+        $query = "SELECT tblclassarms.Id, tblclassarms.isAssigned, tblclass.className, tblclassarms.classArmName 
+                  FROM tblclassarms
+                  INNER JOIN tblclass ON tblclass.Id = tblclassarms.classId";
+        return $this->conn->query($query);
+    }
 }
 
-//---------------------------------------EDIT-------------------------------------------------------------
+$classArmManager = new ClassArmManager($conn);
+$statusMsg = "";
 
+// Save
+if (isset($_POST['save'])) {
+    $statusMsg = $classArmManager->saveClassArm($_POST['classId'], $_POST['classArmName']);
+}
 
-
-
-
-
-//--------------------EDIT------------------------------------------------------------
-
- if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "edit")
-	{
-        $Id= $_GET['Id'];
-
-        $query=mysqli_query($conn,"select * from tblclassarms where Id ='$Id'");
-        $row=mysqli_fetch_array($query);
-
-        //------------UPDATE-----------------------------
-
-        if(isset($_POST['update'])){
-    
-            $classId=$_POST['classId'];
-            $classArmName=$_POST['classArmName'];
-
-            $query=mysqli_query($conn,"update tblclassarms set classId = '$classId', classArmName='$classArmName' where Id='$Id'");
-
-            if ($query) {
-                
-                echo "<script type = \"text/javascript\">
-                window.location = (\"createClassArms.php\")
-                </script>"; 
-            }
-            else
-            {
-                $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
-            }
-        }
+// Edit
+$editRow = null;
+if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "edit") {
+    $editRow = $classArmManager->getClassArmById($_GET['Id']);
+    if (isset($_POST['update'])) {
+        $statusMsg = $classArmManager->updateClassArm($_GET['Id'], $_POST['classId'], $_POST['classArmName']) ? 
+                     "<script>window.location = 'createClassArms.php';</script>" : 
+                     "<div class='alert alert-danger'>An error Occurred!</div>";
     }
+}
 
-
-//--------------------------------DELETE------------------------------------------------------------------
-
-  if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "delete")
-	{
-        $Id= $_GET['Id'];
-
-        $query = mysqli_query($conn,"DELETE FROM tblclassarms WHERE Id='$Id'");
-
-        if ($query == TRUE) {
-
-                echo "<script type = \"text/javascript\">
-                window.location = (\"createClassArms.php\")
-                </script>";  
-        }
-        else{
-
-            $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>"; 
-         }
-      
-  }
-
+// Delete
+if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "delete") {
+    if ($classArmManager->deleteClassArm($_GET['Id'])) {
+        echo "<script>window.location = 'createClassArms.php';</script>";
+    } else {
+        $statusMsg = "<div class='alert alert-danger'>An error Occurred!</div>";
+    }
+}
 
 ?>
 
