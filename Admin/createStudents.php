@@ -1,9 +1,8 @@
 
 <?php 
 error_reporting(0);
-include '../Includes/dbcon.php';
 include '../Includes/session.php';
-include 'Student.php';
+include 'createStudentController.php';
 //------------------------SAVE--------------------------------------------------
 
 $student = new Student($conn);   // Initialize the Student class with the database connection
