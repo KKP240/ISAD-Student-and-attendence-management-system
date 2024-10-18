@@ -1,1 +1,1 @@
-  <title>AMS - Dashboard</title>
+  <title>ระบบจัดทำรายชื่อและเช็คชื่อนักศึกษา</title>
