@@ -1,6 +1,5 @@
 <?php
 include '../Includes/dbcon.php';
-include '../Includes/session.php';
 
 class ClassArmManager {
     private $conn;
