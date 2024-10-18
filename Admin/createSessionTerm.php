@@ -8,31 +8,24 @@ include '../Includes/session.php';
 
 if(isset($_POST['save'])){
     
-    $firstName=$_POST['firstName'];
-  $lastName=$_POST['lastName'];
-  $otherName=$_POST['otherName'];
-
-  $admissionNumber=$_POST['admissionNumber'];
-  $classId=$_POST['classId'];
-  $classArmId=$_POST['classArmId'];
-  $dateCreated = date("Y-m-d");
+    $sessionName=$_POST['sessionName'];
+    $termId=$_POST['termId'];
+    $dateCreated = date("Y-m-d");
    
-    $query=mysqli_query($conn,"select * from tblstudents where admissionNumber ='$admissionNumber'");
+    $query=mysqli_query($conn,"select * from tblsessionterm where sessionName ='$sessionName' and termId = '$termId'");
     $ret=mysqli_fetch_array($query);
 
     if($ret > 0){ 
 
-        $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>This Email Address Already Exists!</div>";
+        $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>This Session and Term Already Exists!</div>";
     }
     else{
 
-    $query=mysqli_query($conn,"insert into tblstudents(firstName,lastName,otherName,admissionNumber,password,classId,classArmId,dateCreated) 
-    value('$firstName','$lastName','$otherName','$admissionNumber','12345','$classId','$classArmId','$dateCreated')");
+        $query=mysqli_query($conn,"insert into tblsessionterm(sessionName,termId,isActive,dateCreated) value('$sessionName','$termId','0','$dateCreated')");
 
     if ($query) {
         
         $statusMsg = "<div class='alert alert-success'  style='margin-right:700px;'>Created Successfully!</div>";
-            
     }
     else
     {
@@ -54,29 +47,23 @@ if(isset($_POST['save'])){
 	{
         $Id= $_GET['Id'];
 
-        $query=mysqli_query($conn,"select * from tblstudents where Id ='$Id'");
+        $query=mysqli_query($conn,"select * from tblsessionterm where Id ='$Id'");
         $row=mysqli_fetch_array($query);
 
         //------------UPDATE-----------------------------
 
         if(isset($_POST['update'])){
     
-             $firstName=$_POST['firstName'];
-  $lastName=$_POST['lastName'];
-  $otherName=$_POST['otherName'];
+             $sessionName=$_POST['sessionName'];
+    $termId=$_POST['termId'];
+    $dateCreated = date("Y-m-d");
+        
+            $query=mysqli_query($conn,"update tblsessionterm set sessionName='$sessionName',termId='$termId',isActive='0' where Id='$Id'");
 
-  $admissionNumber=$_POST['admissionNumber'];
-  $classId=$_POST['classId'];
-  $classArmId=$_POST['classArmId'];
-  $dateCreated = date("Y-m-d");
-
- $query=mysqli_query($conn,"update tblstudents set firstName='$firstName', lastName='$lastName',
-    otherName='$otherName', admissionNumber='$admissionNumber',password='12345', classId='$classId',classArmId='$classArmId'
-    where Id='$Id'");
             if ($query) {
                 
                 echo "<script type = \"text/javascript\">
-                window.location = (\"createStudents.php\")
+                window.location = (\"createSessionTerm.php\")
                 </script>"; 
             }
             else
@@ -92,20 +79,50 @@ if(isset($_POST['save'])){
   if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "delete")
 	{
         $Id= $_GET['Id'];
-        $classArmId= $_GET['classArmId'];
 
-        $query = mysqli_query($conn,"DELETE FROM tblstudents WHERE Id='$Id'");
+        $query = mysqli_query($conn,"DELETE FROM tblsessionterm WHERE Id='$Id'");
 
         if ($query == TRUE) {
 
-            echo "<script type = \"text/javascript\">
-            window.location = (\"createStudents.php\")
-            </script>";
+                echo "<script type = \"text/javascript\">
+                window.location = (\"createSessionTerm.php\")
+                </script>";  
         }
         else{
 
             $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>"; 
          }
+      
+  }
+
+
+  //--------------------------------ACTIVATE------------------------------------------------------------------
+
+  if (isset($_GET['Id']) && isset($_GET['action']) && $_GET['action'] == "activate")
+	{
+        $Id= $_GET['Id'];
+
+        $query=mysqli_query($conn,"update tblsessionterm set isActive='0' where isActive='1'");
+
+            if ($query) {
+                
+                $que=mysqli_query($conn,"update tblsessionterm set isActive='1' where Id='$Id'");
+
+                if ($que) {
+                    
+                    echo "<script type = \"text/javascript\">
+                    window.location = (\"createSessionTerm.php\")
+                    </script>";  
+                }
+                else
+                {
+                    $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
+                }
+            }
+            else
+            {
+                $statusMsg = "<div class='alert alert-danger' style='margin-right:700px;'>An error Occurred!</div>";
+            }
       
   }
 
@@ -126,32 +143,6 @@ if(isset($_POST['save'])){
   <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
   <link href="css/ruang-admin.min.css" rel="stylesheet">
-
-
-
-   <script>
-    function classArmDropdown(str) {
-    if (str == "") {
-        document.getElementById("txtHint").innerHTML = "";
-        return;
-    } else { 
-        if (window.XMLHttpRequest) {
-            // code for IE7+, Firefox, Chrome, Opera, Safari
-            xmlhttp = new XMLHttpRequest();
-        } else {
-            // code for IE6, IE5
-            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-        }
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("txtHint").innerHTML = this.responseText;
-            }
-        };
-        xmlhttp.open("GET","ajaxClassArms2.php?cid="+str,true);
-        xmlhttp.send();
-    }
-}
-</script>
 </head>
 
 <body id="page-top">
@@ -168,10 +159,10 @@ if(isset($_POST['save'])){
         <!-- Container Fluid-->
         <div class="container-fluid" id="container-wrapper">
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Create Students</h1>
+            <h1 class="h3 mb-0 text-gray-800">Create Session and Term</h1>
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="./">Home</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Create Students</li>
+              <li class="breadcrumb-item active" aria-current="page">Create Session and Term<</li>
             </ol>
           </div>
 
@@ -180,53 +171,31 @@ if(isset($_POST['save'])){
               <!-- Form Basic -->
               <div class="card mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Create Students</h6>
+                  <h6 class="m-0 font-weight-bold text-primary">Create Session and Term</h6>
                     <?php echo $statusMsg; ?>
                 </div>
                 <div class="card-body">
                   <form method="post">
-                   <div class="form-group row mb-3">
-                        <div class="col-xl-6">
-                        <label class="form-control-label">Firstname<span class="text-danger ml-2">*</span></label>
-                        <input type="text" class="form-control" name="firstName" value="<?php echo $row['firstName'];?>" id="exampleInputFirstName" >
-                        </div>
-                        <div class="col-xl-6">
-                        <label class="form-control-label">Lastname<span class="text-danger ml-2">*</span></label>
-                      <input type="text" class="form-control" name="lastName" value="<?php echo $row['lastName'];?>" id="exampleInputFirstName" >
-                        </div>
-                    </div>
-                     <div class="form-group row mb-3">
-                        <div class="col-xl-6">
-                        <label class="form-control-label">Other Name<span class="text-danger ml-2">*</span></label>
-                        <input type="text" class="form-control" name="otherName" value="<?php echo $row['otherName'];?>" id="exampleInputFirstName" >
-                        </div>
-                        <div class="col-xl-6">
-                        <label class="form-control-label">Admission Number<span class="text-danger ml-2">*</span></label>
-                      <input type="text" class="form-control" required name="admissionNumber" value="<?php echo $row['admissionNumber'];?>" id="exampleInputFirstName" >
-                        </div>
-                    </div>
                     <div class="form-group row mb-3">
                         <div class="col-xl-6">
-                        <label class="form-control-label">Select Course<span class="text-danger ml-2">*</span></label>
-                         <?php
-                        $qry= "SELECT * FROM tblclass ORDER BY className ASC";
+                            <label class="form-control-label">Session Name<span class="text-danger ml-2">*</span></label>
+                      <input type="text" class="form-control" name="sessionName" value="<?php echo $row['sessionName'];?>" id="exampleInputFirstName" placeholder="Session">
+                        </div>
+                        <div class="col-xl-6">
+                            <label class="form-control-label">Term<span class="text-danger ml-2">*</span></label>
+                              <?php
+                        $qry= "SELECT * FROM tblterm ORDER BY termName ASC";
                         $result = $conn->query($qry);
                         $num = $result->num_rows;		
                         if ($num > 0){
-                          echo ' <select required name="classId" onchange="classArmDropdown(this.value)" class="form-control mb-3">';
-                          echo'<option value="">--Select Course--</option>';
+                          echo ' <select required name="termId" class="form-control mb-3">';
+                          echo'<option value="">--Select Tern--</option>';
                           while ($rows = $result->fetch_assoc()){
-                          echo'<option value="'.$rows['Id'].'" >'.$rows['className'].'</option>';
+                          echo'<option value="'.$rows['Id'].'" >'.$rows['termName'].'</option>';
                               }
                                   echo '</select>';
                               }
                             ?>  
-                        </div>
-                        <div class="col-xl-6">
-                        <label class="form-control-label">Select Class<span class="text-danger ml-2">*</span></label>
-                            <?php
-                                echo"<div id='txtHint'></div>";
-                            ?>
                         </div>
                     </div>
                       <?php
@@ -251,52 +220,48 @@ if(isset($_POST['save'])){
               <div class="col-lg-12">
               <div class="card mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">All Student</h6>
+                  <h6 class="m-0 font-weight-bold text-primary">All Session and Term</h6>
+                  <h6 class="m-0 font-weight-bold text-danger">Note: <i>Click on the check symbol besides each to make session and term active!</i></h6>
                 </div>
                 <div class="table-responsive p-3">
                   <table class="table align-items-center table-flush table-hover" id="dataTableHover">
                     <thead class="thead-light">
                       <tr>
                         <th>#</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Other Name</th>
-                        <th>Admission No</th>
-                        <th>Class</th>
-                        <th>Class Arm</th>
-                        <th>Date Created</th>
-                         <th>Edit</th>
+                        <th>Session</th>
+                        <th>Term</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Activate</th>
+                        <th>Edit</th>
                         <th>Delete</th>
                       </tr>
                     </thead>
-                
+                  
                     <tbody>
 
                   <?php
-                      $query = "SELECT tblstudents.Id,tblclass.className,tblclassarms.classArmName,tblclassarms.Id AS classArmId,tblstudents.firstName,
-                      tblstudents.lastName,tblstudents.otherName,tblstudents.admissionNumber,tblstudents.dateCreated
-                      FROM tblstudents
-                      INNER JOIN tblclass ON tblclass.Id = tblstudents.classId
-                      INNER JOIN tblclassarms ON tblclassarms.Id = tblstudents.classArmId";
+                      $query = "SELECT tblsessionterm.Id,tblsessionterm.sessionName,tblsessionterm.isActive,tblsessionterm.dateCreated,
+                      tblterm.termName
+                      FROM tblsessionterm
+                      INNER JOIN tblterm ON tblterm.Id = tblsessionterm.termId";
                       $rs = $conn->query($query);
                       $num = $rs->num_rows;
                       $sn=0;
-                      $status="";
                       if($num > 0)
                       { 
                         while ($rows = $rs->fetch_assoc())
                           {
+                            if($rows['isActive'] == '1'){$status = "Active";}else{$status = "InActive";}
                              $sn = $sn + 1;
                             echo"
                               <tr>
                                 <td>".$sn."</td>
-                                <td>".$rows['firstName']."</td>
-                                <td>".$rows['lastName']."</td>
-                                <td>".$rows['otherName']."</td>
-                                <td>".$rows['admissionNumber']."</td>
-                                <td>".$rows['className']."</td>
-                                <td>".$rows['classArmName']."</td>
-                                 <td>".$rows['dateCreated']."</td>
+                                <td>".$rows['sessionName']."</td>
+                                <td>".$rows['termName']."</td>
+                                <td>".$status."</td>
+                                <td>".$rows['dateCreated']."</td>
+                                 <td><a href='?action=activate&Id=".$rows['Id']."'><i class='fas fa-fw fa-check'></i></a></td>
                                 <td><a href='?action=edit&Id=".$rows['Id']."'><i class='fas fa-fw fa-edit'></i></a></td>
                                 <td><a href='?action=delete&Id=".$rows['Id']."'><i class='fas fa-fw fa-trash'></i></a></td>
                               </tr>";

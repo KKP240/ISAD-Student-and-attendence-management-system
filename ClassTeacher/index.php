@@ -46,7 +46,7 @@ include '../Includes/session.php';
         <!-- Container Fluid-->
         <div class="container-fluid" id="container-wrapper">
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Administrator Dashboard</h1>
+            <h1 class="h3 mb-0 text-gray-800">Class Teacher Dashboard (<?php echo $rrw['className'].' - '.$rrw['classArmName'];?>)</h1>
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="./">Home</a></li>
               <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
@@ -54,9 +54,9 @@ include '../Includes/session.php';
           </div>
 
           <div class="row mb-3">
-          <!-- Students Card -->
+          <!-- New User Card Example -->
           <?php 
-$query1=mysqli_query($conn,"SELECT * from tblstudents");                       
+$query1=mysqli_query($conn,"SELECT * from tblstudents where classId = '$_SESSION[classId]' and classArmId = '$_SESSION[classArmId]'");                       
 $students = mysqli_num_rows($query1);
 ?>
             <div class="col-xl-3 col-md-6 mb-4">
@@ -78,7 +78,7 @@ $students = mysqli_num_rows($query1);
                 </div>
               </div>
             </div>
-            <!-- Class Card -->
+            <!-- Earnings (Monthly) Card Example -->
              <?php 
 $query1=mysqli_query($conn,"SELECT * from tblclass");                       
 $class = mysqli_num_rows($query1);
@@ -102,7 +102,7 @@ $class = mysqli_num_rows($query1);
                 </div>
               </div>
             </div>
-            <!-- Class Arm Card -->
+            <!-- Earnings (Annual) Card Example -->
              <?php 
 $query1=mysqli_query($conn,"SELECT * from tblclassarms");                       
 $classArms = mysqli_num_rows($query1);
@@ -127,9 +127,9 @@ $classArms = mysqli_num_rows($query1);
               </div>
             </div>
             
-            <!-- Std Att Card  -->
+            <!-- Pending Requests Card Example -->
             <?php 
-$query1=mysqli_query($conn,"SELECT * from tblattendance");                       
+$query1=mysqli_query($conn,"SELECT * from tblattendance where classId = '$_SESSION[classId]' and classArmId = '$_SESSION[classArmId]'");                       
 $totAttendance = mysqli_num_rows($query1);
 ?>
             <div class="col-xl-3 col-md-6 mb-4">
@@ -145,89 +145,13 @@ $totAttendance = mysqli_num_rows($query1);
                       </div>
                     </div>
                     <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-secondary"></i>
+                      <i class="fas fa-calendar fa-2x text-warning"></i>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <!-- Teachers Card  -->
-            <?php 
-            $query1=mysqli_query($conn,"SELECT * from tblclassteacher");                       
-            $classTeacher = mysqli_num_rows($query1);
-            ?>
-                        <div class="col-xl-3 col-md-6 mb-4">
-                          <div class="card h-100">
-                            <div class="card-body">
-                              <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                  <div class="text-xs font-weight-bold text-uppercase mb-1">Class Teachers</div>
-                                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $classTeacher;?></div>
-                                  <div class="mt-2 mb-0 text-muted text-xs">
-                                    <!-- <span class="text-success mr-2"><i class="fas fa-arrow-up"></i> 12%</span>
-                                    <span>Since last years</span> -->
-                                  </div>
-                                </div>
-                                <div class="col-auto">
-                                  <i class="fas fa-chalkboard-teacher fa-2x text-danger"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
           
-
-                         <!-- Session and Terms Card  -->
-            <?php 
-            $query1=mysqli_query($conn,"SELECT * from tblsessionterm");                       
-            $sessTerm = mysqli_num_rows($query1);
-            ?>
-                        <div class="col-xl-3 col-md-6 mb-4">
-                          <div class="card h-100">
-                            <div class="card-body">
-                              <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                  <div class="text-xs font-weight-bold text-uppercase mb-1">Session & Terms</div>
-                                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $sessTerm;?></div>
-                                  <div class="mt-2 mb-0 text-muted text-xs">
-                                    <!-- <span class="text-success mr-2"><i class="fas fa-arrow-up"></i> 12%</span>
-                                    <span>Since last years</span> -->
-                                  </div>
-                                </div>
-                                <div class="col-auto">
-                                  <i class="fas fa-calendar-alt fa-2x text-warning"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-
-                        <!-- Terms Card  -->
-            <?php 
-            $query1=mysqli_query($conn,"SELECT * from tblterm");                       
-            $termonly = mysqli_num_rows($query1);
-            ?>
-                        <div class="col-xl-3 col-md-6 mb-4">
-                          <div class="card h-100">
-                            <div class="card-body">
-                              <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                  <div class="text-xs font-weight-bold text-uppercase mb-1">Terms</div>
-                                  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo $termonly;?></div>
-                                  <div class="mt-2 mb-0 text-muted text-xs">
-                                    <!-- <span class="text-success mr-2"><i class="fas fa-arrow-up"></i> 12%</span>
-                                    <span>Since last years</span> -->
-                                  </div>
-                                </div>
-                                <div class="col-auto">
-                                  <i class="fas fa-th fa-2x text-info"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
           <!--Row-->
 
           <!-- <div class="row">

@@ -1,17 +1,18 @@
 
 <?php 
-  $query = "SELECT * FROM tbladmin WHERE Id = ".$_SESSION['userId']."";
+
+  $query = "SELECT * FROM tblclassteacher WHERE Id = ".$_SESSION['userId']."";
   $rs = $conn->query($query);
   $num = $rs->num_rows;
   $rows = $rs->fetch_assoc();
-  $fullName = $rows['firstName']." ".$rows['lastName'];
+  $fullName = $rows['firstName']." ".$rows['lastName'];;
 
 ?>
 <nav class="navbar navbar-expand navbar-light bg-gradient-primary topbar mb-4 static-top">
           <button id="sidebarToggleTop" class="btn btn-link rounded-circle mr-3">
             <i class="fa fa-bars"></i>
           </button>
-        <div class="text-white big" style="margin-left:100px;"><b></b></div>
+        <div class="text-white big" style="margin-left:100px;"></div>
           <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
@@ -34,6 +35,7 @@
               </div>
             </li>
          
+           
             <div class="topbar-divider d-none d-sm-block"></div>
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
@@ -56,7 +58,7 @@
                 </a> -->
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="logout.php">
-                  <i class="fas fa-power-off fa-fw mr-2 text-danger"></i>
+                <i class="fas fa-power-off fa-fw mr-2 text-danger"></i>
                   Logout
                 </a>
               </div>
