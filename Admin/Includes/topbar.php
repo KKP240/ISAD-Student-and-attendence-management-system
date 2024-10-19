@@ -7,7 +7,9 @@
   $fullName = $rows['firstName']." ".$rows['lastName'];
 
 ?>
-<nav class="navbar navbar-expand navbar-light bg-gradient-primary topbar mb-4 static-top">
+<nav class="navbar navbar-expand navbar-light bg-gradient-primary topbar mb-4 static-top" 
+style="background-color: #6777ef; background-image: background-image: -webkit-gradient(linear,left top,left bottom,color-stop(10%,#6777ef),to(#303f9f));
+      background-image: linear-gradient(180deg,#67bcfb 10%,#6777ef 100%);">
           <button id="sidebarToggleTop" class="btn btn-link rounded-circle mr-3">
             <i class="fa fa-bars"></i>
           </button>
