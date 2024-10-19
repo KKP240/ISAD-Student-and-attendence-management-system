@@ -73,8 +73,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['Id'])) 
                   <form method="post">
                     <div class="form-group row mb-3">
                         <div class="col-xl-6">
-                            <label class="form-control-label">Class Name<span class="text-danger ml-2">*</span></label>
-                            <input type="text" class="form-control" name="className" value="<?php echo htmlspecialchars($className); ?>" id="exampleInputFirstName" placeholder="Class Name">
+                            <label class="form-control-label">Course Name<span class="text-danger ml-2">*</span></label>
+                            <input type="text" class="form-control" name="className" value="<?php echo htmlspecialchars($className); ?>" id="exampleInputFirstName" placeholder="Course Name">
                         </div>
                     </div>
                       <?php
