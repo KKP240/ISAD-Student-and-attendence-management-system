@@ -57,7 +57,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['Id'])) 
             <h1 class="h3 mb-0 text-gray-800">Create Course</h1>
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="./">Home</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Create Class</li>
+              <li class="breadcrumb-item active" aria-current="page">Create Course</li>
             </ol>
           </div>
 
@@ -66,7 +66,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['Id'])) 
               <!-- Form Basic -->
               <div class="card mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Create Class</h6>
+                  <h6 class="m-0 font-weight-bold text-primary">Create Course</h6>
                     <?php echo $statusMsg; ?>
                 </div>
                 <div class="card-body">
@@ -99,14 +99,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['Id'])) 
               <div class="col-lg-12">
               <div class="card mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">All Classes</h6>
+                  <h6 class="m-0 font-weight-bold text-primary">All Course</h6>
                 </div>
                 <div class="table-responsive p-3">
                   <table class="table align-items-center table-flush table-hover" id="dataTableHover">
                     <thead class="thead-light">
                       <tr>
                         <th>#</th>
-                        <th>Class Name</th>
+                        <th>Course Name</th>
                         <th>Edit</th>
                         <th>Delete</th>
                       </tr>
