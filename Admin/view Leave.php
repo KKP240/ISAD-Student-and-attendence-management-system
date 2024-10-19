@@ -99,8 +99,8 @@ $query = "SELECT tblclass.className,tblclassarms.classArmName
                         <th>Last Name</th>
                         <th>Leave Form</th>
                         <th>Admission No</th>
+                        <th>Course</th>
                         <th>Class</th>
-                        <th>Class Arm</th>
                       </tr>
                     </thead>
                     
